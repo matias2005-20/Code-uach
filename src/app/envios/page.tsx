@@ -1,4 +1,3 @@
-
 import Envios from "@/components/envios/Envios";
 import Bloque, { CuerpoBloque } from "@/components/layout/Bloque";
 import Pagina from "@/components/layout/Pagina";
@@ -13,9 +12,15 @@ import type {
   Veredicto,
 } from "@/lib/tipos";
 
+// Dirección base de la aplicación.
+// En producción se utiliza la URL configurada en Vercel.
+// En desarrollo se utiliza localhost.
+const BASE_URL =
+  process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+
 // Consulta una API y convierte su respuesta JSON al tipo esperado.
 async function obtenerJSON<T>(ruta: string): Promise<T> {
-  const respuesta = await fetch(`http://localhost:3000${ruta}`, {
+  const respuesta = await fetch(`${BASE_URL}${ruta}`, {
     cache: "no-store",
   });
 
@@ -74,7 +79,9 @@ export default async function EnviosPage() {
                       <span
                         className={`resumen-relleno resumen-relleno--${v}`}
                         style={{
-                          width: `${total > 0 ? (resumen[v] / total) * 100 : 0}%`,
+                          width: `${
+                            total > 0 ? (resumen[v] / total) * 100 : 0
+                          }%`,
                         }}
                       />
                     </span>
