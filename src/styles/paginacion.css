@@ -1,0 +1,41 @@
+/* ==========================================================================
+   Paginación
+   ========================================================================== */
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding: 12px 0 0;
+  font-size: 13px;
+}
+.pager a,
+.pager span {
+  min-width: 30px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: center;
+}
+.pager a:hover {
+  border-color: var(--crimson);
+  background: var(--crimson-wash);
+  text-decoration: none;
+}
+.pager .here {
+  border-color: var(--crimson);
+  background: var(--crimson);
+  color: #fff;
+  font-weight: 600;
+}
+.pager .gap {
+  border: 0;
+  background: none;
+  color: var(--text-faint);
+}
+.pager .push {
+  margin-left: auto;
+  color: var(--text-dim);
+}

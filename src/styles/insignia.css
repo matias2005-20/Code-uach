@@ -1,0 +1,68 @@
+/* ==========================================================================
+   Etiquetas, insignias y rangos
+   ========================================================================== */
+
+.tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 11.5px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge--ac {
+  background: color-mix(in srgb, var(--ac) 12%, #fff);
+  border-color: color-mix(in srgb, var(--ac) 32%, transparent);
+  color: var(--ac);
+}
+.badge--wa {
+  background: color-mix(in srgb, var(--wa) 11%, #fff);
+  border-color: color-mix(in srgb, var(--wa) 32%, transparent);
+  color: var(--wa);
+}
+.badge--tle {
+  background: color-mix(in srgb, var(--tle) 13%, #fff);
+  border-color: color-mix(in srgb, var(--tle) 32%, transparent);
+  color: var(--tle);
+}
+.badge--mle {
+  background: color-mix(in srgb, var(--tle) 13%, #fff);
+  border-color: color-mix(in srgb, var(--tle) 32%, transparent);
+  color: var(--tle);
+}
+.badge--ce {
+  background: var(--surface-3);
+  border-color: var(--border);
+  color: var(--ce);
+}
+.badge--re {
+  background: color-mix(in srgb, var(--re) 10%, #fff);
+  border-color: color-mix(in srgb, var(--re) 30%, transparent);
+  color: var(--re);
+}
+.badge--pin {
+  background: color-mix(in srgb, var(--gold) 26%, #fff);
+  border-color: color-mix(in srgb, var(--gold) 62%, transparent);
+  color: #6b4a00;
+}
+
+.u {
+  font-weight: 600;
+}
+.r1 { color: var(--r1) !important; }
+.r2 { color: var(--r2) !important; }
+.r3 { color: var(--r3) !important; }
+.r4 { color: var(--r4) !important; }
+.r5 { color: var(--r5) !important; }
+.r6 { color: var(--r6) !important; }

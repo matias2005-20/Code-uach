@@ -1,0 +1,22 @@
+/* ==========================================================================
+   Retícula de dos columnas
+   ========================================================================== */
+
+.cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 296px;
+  align-items: start;
+  gap: 16px;
+  padding-bottom: 28px;
+}
+@media (max-width: 980px) {
+  .cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.side .block:first-child {
+  margin-top: 16px;
+}
+.pad {
+  padding: 14px 16px;
+}

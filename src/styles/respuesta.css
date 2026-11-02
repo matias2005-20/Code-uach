@@ -1,0 +1,36 @@
+/* ==========================================================================
+   Caja de respuesta al pie del hilo
+   ========================================================================== */
+
+.responder textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.55;
+  resize: vertical;
+}
+.responder textarea:focus {
+  border-color: var(--crimson);
+  outline: 2px solid var(--crimson-wash);
+}
+.responder-pie {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.responder-pie .btn {
+  width: auto;
+}
+.responder-pie .nota {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 12px;
+}

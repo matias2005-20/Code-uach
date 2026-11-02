@@ -1,0 +1,23 @@
+/* ==========================================================================
+   Pie
+   ========================================================================== */
+
+.foot {
+  margin-top: auto;
+  padding: 20px 0 26px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+}
+.foot-in {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  color: var(--text-dim);
+}
+.foot-links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}

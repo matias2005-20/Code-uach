@@ -1,0 +1,210 @@
+/* ==========================================================================
+   Envíos: formulario de envío y tabla de estado, al estilo Codeforces
+   ========================================================================== */
+
+/* --- Formulario --- */
+.enviar label {
+  display: block;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 600;
+}
+.enviar select,
+.enviar textarea {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+.enviar select:focus,
+.enviar textarea:focus {
+  border-color: var(--crimson);
+  outline: 2px solid var(--crimson-wash);
+}
+.enviar-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.enviar-codigo {
+  min-height: 200px;
+  resize: vertical;
+  background: var(--surface-2) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 12.5px !important;
+  line-height: 1.55;
+  tab-size: 4;
+}
+.enviar-pie {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.enviar-archivo {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400 !important;
+}
+.enviar-archivo input {
+  font-size: 12px;
+}
+.enviar-btn {
+  width: auto;
+  margin-left: auto;
+  padding: 9px 28px;
+}
+.enviar-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* --- Filtro Todos / Mis envíos, dentro de la barra carmesí --- */
+.filtro {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.5);
+  border-radius: var(--radius-sm);
+}
+.filtro button {
+  padding: 3px 10px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.filtro button.on {
+  background: #fff;
+  color: var(--crimson);
+  font-weight: 600;
+}
+
+/* --- Tabla de estado --- */
+.envios-scroll {
+  overflow-x: auto;
+}
+.envios {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.envios th {
+  padding: 7px 10px;
+  white-space: nowrap;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+}
+.envios td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.envios tbody tr:last-child td {
+  border-bottom: 0;
+}
+.envios tbody tr:nth-child(even) {
+  background: var(--surface-2);
+}
+.envios tbody tr:hover {
+  background: var(--crimson-wash);
+}
+.envios .num,
+.envios .mono {
+  white-space: nowrap;
+}
+.envios .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.envio-nuevo td {
+  background: color-mix(in srgb, var(--gold) 16%, #fff);
+}
+
+/* El veredicto como texto coloreado, igual que en Codeforces. */
+.veredicto {
+  font-weight: 700;
+}
+.veredicto--ac { color: var(--ac); }
+.veredicto--wa { color: var(--wa); }
+.veredicto--tle,
+.veredicto--mle { color: var(--tle); }
+.veredicto--ce { color: var(--ce); }
+.veredicto--re { color: var(--re); }
+
+.juzgando {
+  color: var(--text-dim);
+  font-weight: 600;
+  animation: latido 1s ease-in-out infinite;
+}
+@keyframes latido {
+  50% { opacity: 0.45; }
+}
+
+/* --- Resumen de veredictos en la columna lateral --- */
+.resumen-veredictos {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+}
+.resumen-veredictos li {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 8px;
+}
+.resumen-veredictos .mono {
+  text-align: right;
+}
+.resumen-barra {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-3);
+}
+.resumen-relleno {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+.resumen-relleno--ac { background: var(--ac); }
+.resumen-relleno--wa { background: var(--wa); }
+.resumen-relleno--tle,
+.resumen-relleno--mle { background: var(--tle); }
+.resumen-relleno--ce { background: var(--ce); }
+.resumen-relleno--re { background: var(--re); }
+
+@media (max-width: 680px) {
+  .enviar-fila {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .enviar-pie {
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .juzgando {
+    animation: none;
+  }
+}
+.envios .nowrap {
+  white-space: nowrap;
+}

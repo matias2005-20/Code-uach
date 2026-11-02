@@ -1,0 +1,249 @@
+/* ==========================================================================
+   Hilo: mensajes con avatar a la izquierda
+   ========================================================================== */
+
+.post {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+.post:last-child {
+  border-bottom: 0;
+}
+@media (max-width: 720px) {
+  .post {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.poster {
+  padding: 16px;
+  background: var(--surface-2);
+  border-right: 1px solid var(--border-soft);
+  text-align: center;
+}
+@media (max-width: 720px) {
+  .poster {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-soft);
+    text-align: left;
+  }
+}
+.avatar {
+  display: grid;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 9px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: #fff;
+  font-family: var(--font-title);
+  font-size: 25px;
+  font-weight: 700;
+}
+@media (max-width: 720px) {
+  .avatar {
+    width: 42px;
+    height: 42px;
+    margin: 0;
+    font-size: 18px;
+  }
+}
+.poster-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+.poster-rank {
+  color: var(--text-dim);
+  font-size: 11.5px;
+}
+.poster-stats {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-soft);
+  color: var(--text-faint);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+@media (max-width: 720px) {
+  .poster-stats {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+}
+
+.post-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+.post-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 9px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-dim);
+  font-size: 12px;
+}
+.post-head .push {
+  margin-left: auto;
+}
+.post-content {
+  flex: 1;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.post-content > :first-child {
+  margin-top: 0;
+}
+.post-content > :last-child {
+  margin-bottom: 0;
+}
+.post-content h3 {
+  margin: 20px 0 8px;
+  font-family: var(--font-title);
+  font-size: 19px;
+  font-weight: 600;
+}
+.post-content p {
+  margin: 0 0 12px;
+}
+.post-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 9px 16px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-soft);
+  font-size: 12px;
+}
+.post-foot .push {
+  margin-left: auto;
+}
+
+/* La firma bajo el mensaje, con su línea de separación. */
+.sig {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+  color: var(--text-faint);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* La cita: el recurso más reconocible de un foro. */
+.quote {
+  margin: 0 0 12px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--crimson);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.quote-who {
+  padding: 5px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.quote-what {
+  padding: 9px 12px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+pre.code {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: #fbfaf8;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.code-bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 12px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.code-bar + pre.code {
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+/* Tabla de casos de prueba dentro de un mensaje. */
+.cases {
+  width: 100%;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-collapse: collapse;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  overflow: hidden;
+}
+.cases th {
+  padding: 6px 12px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+}
+.cases td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.cases tr:last-child td {
+  border-bottom: 0;
+}
+.cases tbody tr:nth-child(even) {
+  background: var(--surface-2);
+}
+.cases .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Detalles del envío adjunto a un mensaje. */
+.code-bar-lang {
+  margin-left: auto;
+  font-weight: 400;
+}
+.caso-resultado {
+  color: var(--ac);
+  font-weight: 600;
+}
+.envio-resumen {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* El enunciado, sin el chat alrededor. */
+.enunciado {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+}

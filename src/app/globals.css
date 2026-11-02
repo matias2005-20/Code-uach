@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   CodeUACh — hoja raíz
+
+   Solo ordena los módulos. Cada uno cubre un área y se puede leer aparte.
+   Los tokens van primero porque todo lo demás los consume.
+   ========================================================================== */
+
+@import "../styles/tokens.css";
+@import "../styles/cabecera.css";
+@import "../styles/migas.css";
+@import "../styles/bloque.css";
+@import "../styles/insignia.css";
+@import "../styles/reticula.css";
+@import "../styles/formulario.css";
+@import "../styles/lateral.css";
+@import "../styles/hilo.css";
+@import "../styles/paginacion.css";
+@import "../styles/pie.css";
+@import "../styles/toprating.css";
+@import "../styles/vacio.css";
+@import "../styles/respuesta.css";
+@import "../styles/perfil.css";
+@import "../styles/envios.css";

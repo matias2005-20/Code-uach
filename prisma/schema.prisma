@@ -1,0 +1,540 @@
+// =============================================================================
+// CodeUACh — modelo de datos
+//
+// Escrito como schema de Prisma porque se lee bien y, si más adelante se
+// adopta Prisma, `prisma migrate dev` genera el SQL sin reescribir nada.
+// Hoy es un documento: el proyecto todavía no tiene Prisma instalado.
+//
+// Las decisiones y las preguntas abiertas están en docs/modelo-de-datos.md.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// Personas
+// =============================================================================
+
+enum RolGlobal {
+  ESTUDIANTE
+  DOCENTE
+  ADMIN
+}
+
+model Usuario {
+  id           String    @id @default(cuid())
+  /// Institucional. El dominio decide si la cuenta puede existir.
+  correo       String    @unique
+  /// El nick que se muestra en el foro y en el ranking ("jurjur45").
+  handle       String    @unique
+  nombre       String
+  /// Nulo mientras se use únicamente el correo institucional como identidad.
+  claveHash    String?
+  rol          RolGlobal @default(ESTUDIANTE)
+
+  carreraId    String?
+  carrera      Carrera?  @relation(fields: [carreraId], references: [id], onDelete: SetNull)
+
+  /// Rating global, al estilo Codeforces. Arranca en 800.
+  rating       Int       @default(800)
+
+  correoVerificadoEn DateTime?
+  creadoEn           DateTime  @default(now())
+  ultimoAccesoEn     DateTime?
+  /// Baja lógica: se conserva para no romper el historial del foro.
+  desactivadoEn      DateTime?
+
+  inscripciones     Inscripcion[]
+  inscripcionesResueltas Inscripcion[] @relation("ResueltaPor")
+  problemasCreados  Problema[]
+  envios            Envio[]
+  hilos             Hilo[]
+  mensajes          Mensaje[]
+  votos             VotoUtil[]
+  puntajes          PuntajeRamo[]
+  historialRating   CambioRating[]
+
+  @@index([rating(sort: Desc)])
+  @@map("usuarios")
+}
+
+/// Las facultades traen su color del Manual de Estilo Corporativo UACh (la
+/// paleta secundaria define un color por facultad). La interfaz lo usa para
+/// teñir handles y etiquetas.
+model Facultad {
+  id       String    @id @default(cuid())
+  nombre   String    @unique
+  colorHex String
+  carreras Carrera[]
+
+  @@map("facultades")
+}
+
+model Carrera {
+  id          String    @id @default(cuid())
+  nombre      String    @unique
+  /// Para las tablas angostas: "Civil Informática".
+  nombreCorto String
+  facultadId  String
+  facultad    Facultad  @relation(fields: [facultadId], references: [id], onDelete: Restrict)
+  usuarios    Usuario[]
+
+  @@map("carreras")
+}
+
+// =============================================================================
+// Ramos e inscripción por solicitud y aprobación
+// =============================================================================
+
+model Ramo {
+  id          String  @id @default(cuid())
+  /// "INFO134"
+  codigo      String
+  nombre      String
+  descripcion String
+  /// "2026-2"
+  semestre    String
+
+  /// Si está cerrado, no se aceptan solicitudes nuevas aunque el ramo se vea.
+  aceptaSolicitudes Boolean @default(true)
+  /// Un ramo archivado sigue siendo consultable pero no recibe envíos.
+  archivadoEn       DateTime?
+  creadoEn          DateTime @default(now())
+
+  inscripciones Inscripcion[]
+  asignaciones  AsignacionProblema[]
+  hilos         Hilo[]
+  puntajes      PuntajeRamo[]
+
+  /// El mismo código se repite cada semestre: la instancia es código+semestre.
+  @@unique([codigo, semestre])
+  @@map("ramos")
+}
+
+/// Ningún rol corrige envíos: eso es siempre del juez. Un docente publica
+/// enunciados, fija plazos y puntajes, resuelve solicitudes de inscripción y
+/// ve el rendimiento del curso.
+enum RolEnRamo {
+  ESTUDIANTE
+  /// Un ayudante es estudiante de su carrera y docente-auxiliar aquí.
+  AYUDANTE
+  DOCENTE
+}
+
+enum EstadoInscripcion {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+  /// El estudiante se retiró, o el docente lo dio de baja.
+  RETIRADA
+}
+
+/// El estudiante solicita entrar al ramo y el docente resuelve. La fila es
+/// única por (usuario, ramo) y cambia de estado; un rechazo no crea una fila
+/// nueva, se vuelve a PENDIENTE al re-solicitar. El registro de quién resolvió
+/// qué y cuándo queda en MovimientoInscripcion.
+model Inscripcion {
+  id       String            @id @default(cuid())
+  usuarioId String
+  usuario  Usuario           @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  ramoId   String
+  ramo     Ramo              @relation(fields: [ramoId], references: [id], onDelete: Cascade)
+
+  rol      RolEnRamo         @default(ESTUDIANTE)
+  estado   EstadoInscripcion @default(PENDIENTE)
+
+  /// Lo que el estudiante escribe al pedir el ingreso.
+  mensajeSolicitud String?
+  motivoRechazo    String?
+
+  solicitadaEn DateTime  @default(now())
+  resueltaEn   DateTime?
+  resueltaPorId String?
+  resueltaPor   Usuario? @relation("ResueltaPor", fields: [resueltaPorId], references: [id], onDelete: SetNull)
+
+  movimientos MovimientoInscripcion[]
+
+  @@unique([usuarioId, ramoId])
+  /// La bandeja de pendientes del docente.
+  @@index([ramoId, estado])
+  @@map("inscripciones")
+}
+
+/// Bitácora de la inscripción: sin esto, un re-ingreso tras un rechazo borra
+/// la historia. Sirve para auditar quién aprobó a quién.
+model MovimientoInscripcion {
+  id            String            @id @default(cuid())
+  inscripcionId String
+  inscripcion   Inscripcion       @relation(fields: [inscripcionId], references: [id], onDelete: Cascade)
+  desde         EstadoInscripcion?
+  hacia         EstadoInscripcion
+  porUsuarioId  String?
+  nota          String?
+  ocurridoEn    DateTime          @default(now())
+
+  @@index([inscripcionId, ocurridoEn])
+  @@map("movimientos_inscripcion")
+}
+
+// =============================================================================
+// Problemas
+//
+// Un problema existe por sí solo. Que aparezca en un ramo, con plazo y puntaje,
+// es una asignación aparte: así el mismo problema se reutiliza entre semestres
+// y cae a práctica libre sin duplicarse.
+// =============================================================================
+
+model Tema {
+  id        String          @id @default(cuid())
+  nombre    String          @unique
+  slug      String          @unique
+  problemas TemaEnProblema[]
+
+  @@map("temas")
+}
+
+enum Lenguaje {
+  PYTHON
+  CPP
+  JAVA
+}
+
+model Problema {
+  id     String @id @default(cuid())
+  slug   String @unique
+  titulo String
+
+  /// Markdown. Se guardan por separado porque la pantalla los muestra como
+  /// secciones distintas, igual que en el hilo del enunciado.
+  enunciado      String
+  formatoEntrada String
+  formatoSalida  String
+  notas          String?
+
+  limiteTiempoMs   Int @default(1000)
+  limiteMemoriaMb  Int @default(256)
+
+  /// Dificultad al estilo Codeforces (800–3500). Tiñe la fila en la lista.
+  dificultad Int
+
+  autorId String
+  autor   Usuario @relation(fields: [autorId], references: [id], onDelete: Restrict)
+
+  /// Práctica libre: nulo = todavía no liberado. Se llena cuando venció el
+  /// plazo en todos los ramos donde estaba asignado.
+  libreDesde DateTime?
+
+  creadoEn    DateTime  @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  temas        TemaEnProblema[]
+  casos        CasoDePrueba[]
+  asignaciones AsignacionProblema[]
+  envios       Envio[]
+  editorial    Editorial?
+
+  @@index([libreDesde, dificultad])
+  @@map("problemas")
+}
+
+model TemaEnProblema {
+  problemaId String
+  problema   Problema @relation(fields: [problemaId], references: [id], onDelete: Cascade)
+  temaId     String
+  tema       Tema     @relation(fields: [temaId], references: [id], onDelete: Cascade)
+
+  @@id([problemaId, temaId])
+  @@map("temas_en_problemas")
+}
+
+/// La explicación oficial. Se publica cuando cierra el plazo, no antes.
+model Editorial {
+  id         String   @id @default(cuid())
+  problemaId String   @unique
+  problema   Problema @relation(fields: [problemaId], references: [id], onDelete: Cascade)
+  cuerpo     String
+  autorId    String
+  publicadoEn DateTime?
+
+  @@map("editoriales")
+}
+
+/// Un caso de prueba. Las entradas grandes no caben cómodas en la base: para
+/// eso están los campos *Ruta, que apuntan al almacenamiento de archivos.
+/// Regla: se usa el campo en texto o la ruta, nunca los dos.
+model CasoDePrueba {
+  id         String   @id @default(cuid())
+  problemaId String
+  problema   Problema @relation(fields: [problemaId], references: [id], onDelete: Cascade)
+
+  orden       Int
+  /// Lo que se muestra en la tabla de resultados: "límites", "aleatorio".
+  descripcion String?
+
+  entrada            String?
+  salidaEsperada     String?
+  entradaRuta        String?
+  salidaEsperadaRuta String?
+
+  /// Los de ejemplo se muestran en el enunciado; el resto nunca se expone.
+  esEjemplo Boolean @default(false)
+  /// Para puntaje parcial: los casos del mismo grupo se aprueban juntos.
+  grupo     Int     @default(0)
+  puntos    Int     @default(0)
+
+  resultados ResultadoCaso[]
+
+  @@unique([problemaId, orden])
+  @@map("casos_de_prueba")
+}
+
+/// El problema publicado dentro de un ramo: aquí viven la letra, el plazo y el
+/// puntaje, que son propios del ramo y no del problema.
+model AsignacionProblema {
+  id         String   @id @default(cuid())
+  ramoId     String
+  ramo       Ramo     @relation(fields: [ramoId], references: [id], onDelete: Cascade)
+  problemaId String
+  problema   Problema @relation(fields: [problemaId], references: [id], onDelete: Restrict)
+
+  /// "A", "B", "C"…
+  etiqueta    String
+  puntaje     Int      @default(100)
+  obligatorio Boolean  @default(true)
+
+  publicadoEn DateTime  @default(now())
+  /// Pasado el cierre los envíos se siguen juzgando, pero no suman puntaje.
+  cierraEn    DateTime?
+
+  envios Envio[]
+  hilo   Hilo?
+
+  @@unique([ramoId, problemaId])
+  @@unique([ramoId, etiqueta])
+  @@index([ramoId, publicadoEn])
+  @@map("asignaciones_problema")
+}
+
+// =============================================================================
+// Envíos y juzgamiento
+// =============================================================================
+
+enum EstadoEnvio {
+  EN_COLA
+  COMPILANDO
+  EJECUTANDO
+  LISTO
+}
+
+enum Veredicto {
+  ACEPTADO
+  INCORRECTO
+  TIEMPO_EXCEDIDO
+  MEMORIA_EXCEDIDA
+  ERROR_COMPILACION
+  ERROR_EJECUCION
+  /// Falló el juez, no el código del estudiante: no cuenta como intento.
+  ERROR_INTERNO
+}
+
+/// El veredicto lo pone el juez y nadie más: no hay campo de corrección manual
+/// ni de revisor, a propósito. Un docente que discrepa corrige el caso de
+/// prueba o el enunciado, no el resultado.
+model Envio {
+  id        String   @id @default(cuid())
+  usuarioId String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  problemaId String
+  problema  Problema @relation(fields: [problemaId], references: [id], onDelete: Restrict)
+
+  /// Nulo cuando el envío es de práctica libre: ese no suma puntaje de ramo.
+  asignacionId String?
+  asignacion   AsignacionProblema? @relation(fields: [asignacionId], references: [id], onDelete: SetNull)
+
+  lenguaje     Lenguaje
+  codigoFuente String
+
+  estado    EstadoEnvio @default(EN_COLA)
+  veredicto Veredicto?
+
+  tiempoMaxMs   Int?
+  memoriaMaxKb  Int?
+  casosCorrectos Int @default(0)
+  casosTotales   Int @default(0)
+  /// Ya descontado el atraso, si la asignación estaba cerrada queda en 0.
+  puntajeObtenido Int @default(0)
+
+  /// Sólo la salida del compilador. Nunca la salida esperada de un caso oculto.
+  mensajeCompilador String?
+
+  enviadoEn DateTime  @default(now())
+  juzgadoEn DateTime?
+
+  resultados ResultadoCaso[]
+  mensajes   Mensaje[]
+
+  /// El historial del estudiante y la lista de envíos del ramo.
+  @@index([usuarioId, enviadoEn(sort: Desc)])
+  @@index([asignacionId, veredicto])
+  @@index([estado, enviadoEn])
+  @@map("envios")
+}
+
+model ResultadoCaso {
+  id      String       @id @default(cuid())
+  envioId String
+  envio   Envio        @relation(fields: [envioId], references: [id], onDelete: Cascade)
+  casoId  String
+  caso    CasoDePrueba @relation(fields: [casoId], references: [id], onDelete: Cascade)
+
+  veredicto  Veredicto
+  tiempoMs   Int?
+  memoriaKb  Int?
+  /// Se guarda recortada y sólo para casos de ejemplo, para poder depurar sin
+  /// filtrar los ocultos.
+  salidaObtenida String?
+
+  @@unique([envioId, casoId])
+  @@map("resultados_caso")
+}
+
+// =============================================================================
+// Foro
+//
+// Cada asignación tiene su hilo, creado junto con ella. La discusión es por
+// ramo y no global, porque las reglas de spoiler dependen del plazo del ramo.
+// =============================================================================
+
+enum TipoHilo {
+  PROBLEMA
+  DUDA
+  ANUNCIO
+  EDITORIAL
+}
+
+model Hilo {
+  id     String   @id @default(cuid())
+  tipo   TipoHilo
+  titulo String
+
+  /// Nulo en los hilos de la zona abierta de la comunidad.
+  ramoId String?
+  ramo   Ramo?   @relation(fields: [ramoId], references: [id], onDelete: Cascade)
+
+  /// Presente sólo en los hilos de tipo PROBLEMA.
+  asignacionId String?             @unique
+  asignacion   AsignacionProblema? @relation(fields: [asignacionId], references: [id], onDelete: Cascade)
+
+  autorId String
+  autor   Usuario @relation(fields: [autorId], references: [id], onDelete: Restrict)
+
+  fijado  Boolean @default(false)
+  cerrado Boolean @default(false)
+
+  creadoEn        DateTime @default(now())
+  ultimoMensajeEn DateTime @default(now())
+
+  mensajes Mensaje[]
+
+  /// Ordenar la lista del ramo por actividad reciente.
+  @@index([ramoId, fijado, ultimoMensajeEn(sort: Desc)])
+  @@map("hilos")
+}
+
+model Mensaje {
+  id     String @id @default(cuid())
+  hiloId String
+  hilo   Hilo   @relation(fields: [hiloId], references: [id], onDelete: Cascade)
+
+  autorId String
+  autor   Usuario @relation(fields: [autorId], references: [id], onDelete: Restrict)
+
+  cuerpo String
+
+  /// La cita: apunta al mensaje respondido.
+  citaDeId String?
+  citaDe   Mensaje?  @relation("Cita", fields: [citaDeId], references: [id], onDelete: SetNull)
+  citas    Mensaje[] @relation("Cita")
+
+  /// Un mensaje puede adjuntar un envío, como el veredicto que aparece en el
+  /// hilo del problema.
+  envioId String?
+  envio   Envio?  @relation(fields: [envioId], references: [id], onDelete: SetNull)
+
+  creadoEn   DateTime  @default(now())
+  editadoEn  DateTime?
+  /// Baja lógica: el hueco rompería la numeración del hilo.
+  eliminadoEn DateTime?
+
+  votos VotoUtil[]
+
+  @@index([hiloId, creadoEn])
+  @@map("mensajes")
+}
+
+/// "N personas marcaron esto como útil". Tabla y no contador, para que nadie
+/// vote dos veces y para poder deshacerlo.
+model VotoUtil {
+  usuarioId String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  mensajeId String
+  mensaje   Mensaje  @relation(fields: [mensajeId], references: [id], onDelete: Cascade)
+  creadoEn  DateTime @default(now())
+
+  @@id([usuarioId, mensajeId])
+  @@map("votos_utiles")
+}
+
+// =============================================================================
+// Puntajes y rating
+// =============================================================================
+
+/// Derivable de los envíos, pero se materializa: el ranking del ramo se pide
+/// en cada carga de página y recalcularlo cada vez no escala.
+/// Se recalcula cuando un envío pasa a LISTO.
+model PuntajeRamo {
+  usuarioId String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  ramoId    String
+  ramo      Ramo    @relation(fields: [ramoId], references: [id], onDelete: Cascade)
+
+  problemasResueltos Int @default(0)
+  puntajeTotal       Int @default(0)
+  ultimoEnvioEn      DateTime?
+  actualizadoEn      DateTime @updatedAt
+
+  @@id([usuarioId, ramoId])
+  @@index([ramoId, puntajeTotal(sort: Desc)])
+  @@map("puntajes_ramo")
+}
+
+enum MotivoCambioRating {
+  PROBLEMA_RESUELTO
+  CONCURSO
+  /// Decaimiento por inactividad.
+  INACTIVIDAD
+  AJUSTE_MANUAL
+}
+
+/// El "+47" de la tabla de top rating sale de aquí, sumando los cambios de la
+/// última semana.
+model CambioRating {
+  id        String             @id @default(cuid())
+  usuarioId String
+  usuario   Usuario            @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  motivo    MotivoCambioRating
+  delta     Int
+  /// El rating después de aplicar el cambio; evita recomputar la serie.
+  valorFinal Int
+  referencia String?
+  ocurridoEn DateTime           @default(now())
+
+  @@index([usuarioId, ocurridoEn(sort: Desc)])
+  @@map("cambios_rating")
+}

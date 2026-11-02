@@ -1,0 +1,895 @@
+/* ==========================================================================
+   Comparador de estilos para CodeUACh.
+
+   Tres variantes sobre el mismo marcado. La estructura es la de Codeforces
+   (barra de navegación, tabla densa, columna lateral con cajas); lo que cambia
+   es el tema.
+
+   Paleta primaria tomada del Manual de Estilo Corporativo UACh 2023:
+     Pantone 200   #c20430   carmesí       (color de marca)
+     Pantone 290   #c0ddea   celeste
+     Pantone 123   #ffc82e   amarillo
+     Pantone 349   #00693e   verde
+     Pantone Black #1d1d1b   negro
+     grises        #878787 · #b2b2b2 · #c6c6c6
+
+   Los rangos de usuario usan la paleta secundaria (un color por facultad),
+   convertida desde Pantone, así que son aproximaciones.
+   ========================================================================== */
+
+/* La hoja global pinta el body de terminal oscura y superpone scanlines.
+   Aquí se desactiva sin tocar esa hoja. */
+body:has(.sr) {
+  background: var(--page);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.55;
+}
+body:has(.sr)::before {
+  display: none;
+}
+
+.sr {
+  /* --- primarios UACh --- */
+  --uach-crimson: #c20430;
+  --uach-sky: #c0ddea;
+  --uach-gold: #ffc82e;
+  --uach-green: #00693e;
+  --uach-ink: #1d1d1b;
+  --g60: #878787;
+  --g40: #b2b2b2;
+  --g30: #c6c6c6;
+
+  /* --- veredictos ---
+     Deliberadamente fuera del carmesí institucional: el rojo de marca y el
+     rojo de "incorrecto" no pueden ser el mismo color. */
+  --ac: #00693e;
+  --wa: #b3261e;
+  --tle: #9a6300;
+  --ce: #5a5a58;
+  --re: #5f259f;
+
+  /* --- rangos (secundarios UACh, aprox. desde Pantone) --- */
+  --r1: #878787; /* gris        */
+  --r2: #00814a; /* 348C verde  */
+  --r3: #007396; /* 314C azul   */
+  --r4: #003a70; /* 2955C azul  */
+  --r5: #5f259f; /* 2603C morado*/
+  --r6: #fe5000; /* 021C naranjo*/
+
+  --font-ui: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-title: var(--font-garamond), Garamond, "Times New Roman", serif;
+  --font-mono: var(--font-jb), ui-monospace, Menlo, monospace;
+
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--page);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.sr *,
+.sr *::before,
+.sr *::after {
+  box-sizing: border-box;
+}
+
+.wrapx {
+  width: min(1180px, 100% - 32px);
+  margin-inline: auto;
+}
+
+/* ---------- barra superior ---------- */
+
+.mast {
+  background: var(--mast-bg);
+  color: var(--mast-fg);
+  border-bottom: var(--mast-border);
+}
+.mast-in {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: var(--mast-h);
+}
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  text-decoration: none;
+  color: inherit;
+}
+.brand-mark {
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--uach-crimson);
+  color: #fff;
+  font-family: var(--font-title);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+}
+.brand-name {
+  font-family: var(--font-title);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mainnav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: auto;
+}
+.mainnav a {
+  position: relative;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--mast-nav);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.mainnav a:hover {
+  background: var(--mast-nav-hover);
+  color: var(--mast-fg);
+}
+.mainnav a.is-active {
+  color: var(--mast-fg);
+  font-weight: 600;
+}
+.mainnav a.is-active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--uach-crimson);
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+}
+.quiet {
+  color: var(--text-dim);
+  font-size: 12.5px;
+  text-decoration: none;
+}
+.quiet:hover {
+  color: var(--link);
+  text-decoration: underline;
+}
+
+/* ---------- barra de contexto ---------- */
+
+.subbar {
+  background: var(--sub-bg);
+  border-bottom: 1px solid var(--border);
+}
+.subbar-in {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 38px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+.crumb-now {
+  color: var(--text);
+  font-weight: 600;
+}
+.crumb-sep {
+  color: var(--g40);
+}
+.spacer {
+  margin-left: auto;
+}
+.term {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- retícula ---------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  align-items: start;
+  gap: var(--gap);
+  padding-block: var(--gap);
+  flex: 1;
+}
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.col-main,
+.col-side {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* ---------- cajas ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: var(--head-pad);
+  background: var(--head-bg);
+  border-bottom: 1px solid var(--border);
+}
+.card-head h2 {
+  margin: 0;
+  margin-right: auto;
+  font-family: var(--head-font);
+  font-size: var(--head-size);
+  font-weight: var(--head-weight);
+  letter-spacing: var(--head-tracking);
+  text-transform: var(--head-transform);
+  color: var(--head-fg);
+}
+.card-body {
+  padding: var(--pad);
+}
+.meta {
+  color: var(--text-dim);
+  font-size: 12.5px;
+}
+
+.filters {
+  display: flex;
+  gap: 6px;
+}
+.chip {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.chip:hover {
+  border-color: var(--g40);
+  color: var(--text);
+}
+.chip--on {
+  border-color: transparent;
+  background: var(--uach-crimson);
+  color: #fff;
+}
+
+/* ---------- tablas ---------- */
+
+.grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.grid-table thead th {
+  padding: var(--cell-pad);
+  background: var(--thead-bg);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.grid-table td {
+  padding: var(--cell-pad);
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: middle;
+}
+.grid-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.grid-table tbody tr:nth-child(even) {
+  background: var(--zebra);
+}
+.grid-table tbody tr:hover {
+  background: var(--row-hover);
+}
+.grid-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.w-id {
+  width: 34px;
+}
+.w-num {
+  width: 92px;
+}
+.w-tema {
+  width: 190px;
+}
+.w-est {
+  width: 108px;
+}
+.compact td {
+  padding: 7px 12px;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+.dim {
+  color: var(--text-dim);
+}
+
+.plink {
+  color: var(--link);
+  font-weight: 500;
+  text-decoration: none;
+}
+.plink:hover {
+  text-decoration: underline;
+}
+.row-resuelto .plink::before {
+  content: "✓ ";
+  color: var(--ac);
+  font-weight: 700;
+}
+.row-me {
+  background: var(--me-bg) !important;
+  box-shadow: inset 2px 0 0 var(--uach-crimson);
+}
+
+/* ---------- estados y veredictos ---------- */
+
+.state {
+  font-size: 12px;
+  font-weight: 500;
+}
+.state--resuelto {
+  color: var(--ac);
+}
+.state--intentado {
+  color: var(--tle);
+}
+.state--nuevo {
+  color: var(--text-dim);
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.badge--ac {
+  background: color-mix(in srgb, var(--ac) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--ac) 35%, transparent);
+  color: var(--ac-fg, var(--ac));
+}
+.badge--wa {
+  background: color-mix(in srgb, var(--wa) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--wa) 35%, transparent);
+  color: var(--wa-fg, var(--wa));
+}
+.badge--tle {
+  background: color-mix(in srgb, var(--tle) 16%, var(--surface));
+  border-color: color-mix(in srgb, var(--tle) 35%, transparent);
+  color: var(--tle-fg, var(--tle));
+}
+.badge--ce {
+  background: color-mix(in srgb, var(--ce) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--ce) 35%, transparent);
+  color: var(--ce-fg, var(--ce));
+}
+.badge--re {
+  background: color-mix(in srgb, var(--re) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--re) 35%, transparent);
+  color: var(--re-fg, var(--re));
+}
+
+.verdict-top {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.verdict-meta {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.verdict-meta b {
+  color: var(--text);
+  font-weight: 600;
+}
+.verdict-foot {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.code {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--code-fg);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+.cases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+.cases li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 12.5px;
+}
+.cases li:last-child {
+  border-bottom: 0;
+}
+.cases li:nth-child(even) {
+  background: var(--zebra);
+}
+.tick {
+  color: var(--ac);
+  font-weight: 700;
+}
+.case-n {
+  width: 62px;
+}
+.case-d {
+  margin-right: auto;
+}
+
+/* ---------- rangos de usuario ---------- */
+
+.user {
+  font-weight: 600;
+  text-decoration: none;
+}
+.user:hover {
+  text-decoration: underline;
+}
+.r1 { color: var(--r1); }
+.r2 { color: var(--r2); }
+.r3 { color: var(--r3); }
+.r4 { color: var(--r4); }
+.r5 { color: var(--r5); }
+.r6 { color: var(--r6); }
+.carrera {
+  display: block;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+
+/* ---------- progreso ---------- */
+
+.stat {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-bottom: 14px;
+}
+.stat-n {
+  font-family: var(--font-title);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--uach-crimson);
+}
+.stat-l {
+  color: var(--text-dim);
+  font-size: 12.5px;
+}
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.bar {
+  display: grid;
+  grid-template-columns: 1fr 88px 36px;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+}
+.bar-t {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--track);
+  overflow: hidden;
+}
+.bar-t i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ac);
+}
+.bar-t i.low {
+  background: var(--tle);
+}
+.bar-v {
+  text-align: right;
+  color: var(--text-dim);
+}
+
+.card--note {
+  background: var(--note-bg);
+  border-color: var(--note-border);
+}
+.card--note p {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* ---------- pie ---------- */
+
+.foot {
+  margin-top: auto;
+  padding-block: 20px;
+  background: var(--foot-bg);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+.foot-in {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--text-dim);
+}
+
+/* ==========================================================================
+   A · Códex — la densidad de Codeforces, ordenada.
+   Gris claro, esquinas casi rectas, filas bajas, todo cabe en una pantalla.
+   ========================================================================== */
+
+.sr[data-v="a"] {
+  --page: #f2f3f5;
+  --surface: #ffffff;
+  --border: #dcdfe4;
+  --border-soft: #e9ebee;
+  --text: #16181d;
+  --text-dim: #6b7280;
+  --link: #0b4f8a;
+  --zebra: #fafbfc;
+  --row-hover: #eef4fa;
+  --me-bg: #fff5f7;
+  --track: #e5e7eb;
+  --code-bg: #fbfbfc;
+  --code-fg: #16181d;
+  --note-bg: #fffaf0;
+  --note-border: #f0dfb8;
+  --foot-bg: #ffffff;
+  --sub-bg: #ffffff;
+  --thead-bg: #f7f8f9;
+  --head-bg: #f7f8f9;
+  --head-fg: #16181d;
+  --head-font: var(--font-ui);
+  --head-size: 12.5px;
+  --head-weight: 700;
+  --head-tracking: 0.06em;
+  --head-transform: uppercase;
+  --head-pad: 8px 14px;
+  --mast-bg: #ffffff;
+  --mast-fg: #16181d;
+  --mast-nav: #4b5563;
+  --mast-nav-hover: #f2f3f5;
+  --mast-border: 3px solid var(--uach-crimson);
+  --mast-h: 54px;
+  --radius: 4px;
+  --radius-sm: 3px;
+  --shadow: none;
+  --gap: 14px;
+  --pad: 14px;
+  --cell-pad: 6px 12px;
+}
+
+/* ==========================================================================
+   B · Austral — institucional moderno.
+   Barra negra con el carmesí de acento, Garamond en los títulos, más aire.
+   ========================================================================== */
+
+.sr[data-v="b"] {
+  --page: #f6f5f3;
+  --surface: #ffffff;
+  --border: #e4e1dc;
+  --border-soft: #efedea;
+  --text: #1d1d1b;
+  --text-dim: #77736c;
+  --link: #a4032a;
+  --zebra: #fbfaf9;
+  --row-hover: #f4f0f1;
+  --me-bg: #fdf3f5;
+  --track: #eceae6;
+  --code-bg: #fbfaf9;
+  --code-fg: #1d1d1b;
+  --note-bg: #eef6fa;
+  --note-border: var(--uach-sky);
+  --foot-bg: #ffffff;
+  --sub-bg: #ffffff;
+  --thead-bg: #ffffff;
+  --head-bg: #ffffff;
+  --head-fg: #1d1d1b;
+  --head-font: var(--font-title);
+  --head-size: 19px;
+  --head-weight: 600;
+  --head-tracking: -0.01em;
+  --head-transform: none;
+  --head-pad: 14px 20px 12px;
+  --mast-bg: var(--uach-ink);
+  --mast-fg: #ffffff;
+  --mast-nav: #b9b5ad;
+  --mast-nav-hover: rgb(255 255 255 / 0.09);
+  --mast-border: 3px solid var(--uach-crimson);
+  --mast-h: 64px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgb(29 29 27 / 0.05), 0 6px 16px -10px rgb(29 29 27 / 0.14);
+  --gap: 20px;
+  --pad: 20px;
+  --cell-pad: 11px 20px;
+}
+
+.sr[data-v="b"] .brand-mark {
+  background: var(--uach-crimson);
+}
+.sr[data-v="b"] .grid-table thead th {
+  background: transparent;
+  border-bottom: 2px solid var(--uach-ink);
+  color: var(--uach-ink);
+}
+.sr[data-v="b"] .subbar {
+  background: linear-gradient(to bottom, #ffffff, var(--page));
+}
+/* Sobre fondo claro el celeste institucional no alcanza contraste de texto,
+   así que se usa sólo como fondo de la caja de aviso. */
+.sr[data-v="b"] .card--note {
+  background: color-mix(in srgb, var(--uach-sky) 40%, #ffffff);
+}
+
+/* ==========================================================================
+   C · Nocturno — la misma densidad de A, en oscuro.
+   Base en el negro institucional, no en azul; es la opción para programar
+   de noche sin salirse de la identidad.
+   ========================================================================== */
+
+.sr[data-v="c"] {
+  --page: #131413;
+  --surface: #1b1c1b;
+  --border: #2e302e;
+  --border-soft: #262826;
+  --text: #e6e5e2;
+  --text-dim: #948f88;
+  --link: #7fb2e5;
+  --zebra: #1f201f;
+  --row-hover: #262826;
+  --me-bg: #2a1b1f;
+  --track: #2e302e;
+  --code-bg: #141514;
+  --code-fg: #e6e5e2;
+  --note-bg: #17242a;
+  --note-border: #294450;
+  --foot-bg: #171817;
+  --sub-bg: #171817;
+  --thead-bg: #1f201f;
+  --head-bg: #1f201f;
+  --head-fg: #e6e5e2;
+  --head-font: var(--font-ui);
+  --head-size: 12.5px;
+  --head-weight: 700;
+  --head-tracking: 0.06em;
+  --head-transform: uppercase;
+  --head-pad: 9px 16px;
+  --mast-bg: #0e0f0e;
+  --mast-fg: #f2f1ee;
+  --mast-nav: #948f88;
+  --mast-nav-hover: rgb(255 255 255 / 0.07);
+  --mast-border: 3px solid var(--uach-crimson);
+  --mast-h: 56px;
+  --radius: 6px;
+  --radius-sm: 4px;
+  --shadow: none;
+  --gap: 16px;
+  --pad: 16px;
+  --cell-pad: 7px 14px;
+
+  /* En oscuro los colores de marca se aclaran para mantener el contraste. */
+  --ac: #3fbf7f;
+  --wa: #f0685c;
+  --tle: #e0a64b;
+  --ce: #9a968f;
+  --re: #b18cf0;
+  --r1: #948f88;
+  --r2: #3fbf7f;
+  --r3: #4fb6c9;
+  --r4: #7fb2e5;
+  --r5: #b18cf0;
+  --r6: #ff8a4c;
+}
+
+.sr[data-v="c"] .stat-n {
+  color: #f0685c;
+}
+.sr[data-v="c"] .chip--on {
+  background: #d4143a;
+}
+
+/* ==========================================================================
+   Índice del comparador
+   ========================================================================== */
+
+.pick {
+  min-height: 100vh;
+  padding: 56px 0 72px;
+  background: #f2f3f5;
+  color: #16181d;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+.pick h1 {
+  margin: 0 0 8px;
+  font-family: var(--font-garamond), Garamond, serif;
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.pick .lede {
+  max-width: 62ch;
+  margin: 0 0 32px;
+  color: #4b5563;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.picks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+.pick-card {
+  display: block;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #dcdfe4;
+  border-radius: 8px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.pick-card:hover {
+  border-color: #c20430;
+  transform: translateY(-2px);
+}
+.pick-card .k {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: #c20430;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.pick-card h2 {
+  margin: 0 0 6px;
+  font-family: var(--font-garamond), Garamond, serif;
+  font-size: 24px;
+  font-weight: 600;
+}
+.pick-card p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.swatches {
+  display: flex;
+  gap: 5px;
+  margin-top: 14px;
+}
+.swatches i {
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgb(0 0 0 / 0.12);
+  border-radius: 4px;
+}
+.palette {
+  margin-top: 44px;
+  padding-top: 28px;
+  border-top: 1px solid #dcdfe4;
+}
+.palette h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.palette p {
+  margin: 0 0 18px;
+  color: #6b7280;
+  font-size: 13px;
+}
+.chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sw {
+  width: 132px;
+  border: 1px solid #dcdfe4;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 11.5px;
+}
+.sw b {
+  display: block;
+  height: 52px;
+}
+.sw span {
+  display: block;
+  padding: 6px 8px;
+  background: #fff;
+  color: #4b5563;
+  font-family: var(--font-jb), monospace;
+}
+.sw em {
+  display: block;
+  padding: 0 8px 6px;
+  background: #fff;
+  color: #9aa0a6;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.backlink {
+  display: inline-block;
+  padding: 10px 0;
+  color: #6b7280;
+  font-size: 13px;
+  text-decoration: none;
+}
+.backlink:hover {
+  color: #c20430;
+}
